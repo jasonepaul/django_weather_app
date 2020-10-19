@@ -15,6 +15,5 @@ def homepage(request):
     plot.line(x, y, line_width=2)
 
     script, div = components(plot)
-    print("test views.homepage()")
 
     return render(request, "weather/base.html", {'script': script, 'div': div})
