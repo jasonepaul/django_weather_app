@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from bokeh.plotting import figure
 from bokeh.embed import components
+from . import plot_trend
+
 
 # Create your views here.
 
