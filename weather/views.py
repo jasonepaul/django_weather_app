@@ -11,9 +11,8 @@ from pathlib import Path
 def homepage(request):
 
     data_file_path = Path(__file__).resolve().parent.joinpath("data", "2015_weather.csv")
-    builder = TrendPlotBuilder(data_file_path)
-    plot_and_controls = builder.build_trend_plot()
-
-    script, div = components(plot_and_controls)
+    builder = TrendPlotBuilder(data_file_path, smoothed=False)
+    plot = builder.build_trend_plot()
+    script, div = components(plot)
 
     return render(request, "weather/base.html", {'script': script, 'div': div})
