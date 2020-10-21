@@ -4,3 +4,21 @@
 *.pyc
 *.pyo
 __pycache__/
+
+# Pycharm
+.idea
+
+# VS Code
+.vscode/
+
+# Spyder
+.spyproject/
+
+# Jupyter NB Checkpoints
+.ipynb_checkpoints/
+
+# Django stuff:
+*.log
+
+# DotEnv configuration
+.env

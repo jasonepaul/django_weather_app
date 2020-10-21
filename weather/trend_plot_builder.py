@@ -14,7 +14,7 @@ class TrendPlotBuilder:
     def __init__(self, file_path, smoothed=False):
         self.data_file = file_path
         self.weather_df = None
-        self.source = None  # a ColumnDataSource
+        self.source = None  # a ColumnDataSource object
         self.plot = None  # a Figure object
         self.smoothed = smoothed
 
@@ -36,7 +36,7 @@ class TrendPlotBuilder:
         df['right'] = df.date + datetime.timedelta(days=0.5)
         df = df.set_index(['date'])
         df.sort_index(inplace=True)
-        # df = df[:]
+        df = df[-(7*12):]
         if self.smoothed:
             window, order = 51, 3
             for key in self.STATISTICS:
@@ -57,4 +57,4 @@ class TrendPlotBuilder:
         self.plot.yaxis.axis_label = "Temperature (F)"
         self.plot.axis.axis_label_text_font_style = "bold"
         self.plot.x_range = DataRange1d(range_padding=0.0)
-        self.plot.grid.grid_line_alpha = 0.5
+        self.plot.grid.grid_line_alpha = 0.7
