@@ -17,6 +17,7 @@ class TrendPlotBuilder:
         self.source = None  # a ColumnDataSource object
         self.plot = None  # a Figure object
         self.smoothed = smoothed
+        self.build_trend_plot()
 
     def build_trend_plot(self):
 
@@ -24,10 +25,12 @@ class TrendPlotBuilder:
         self.process_dataset()
         self.make_plot()
 
-        return self.plot
-
     def create_df_from_csv(self):
         self.weather_df = pd.read_csv(self.data_file)
+
+    def create_df_from_db(self):
+        # TODO need to access the bd in here
+        pass
 
     def process_dataset(self):
         df = self.weather_df
@@ -45,7 +48,7 @@ class TrendPlotBuilder:
 
     def make_plot(self):
         self.plot = figure(x_axis_type="datetime", plot_width=800, tools="", toolbar_location=None)
-        self.plot.title.text = "Weather Data for Seattle"
+        self.plot.title.text = "Temperature Trend for Calgary (YYC Airport)"
         self.plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',
                        color=BuGn4[2], source=self.source, legend_label="Record")
         self.plot.quad(top='average_max_temp', bottom='average_min_temp', left='left', right='right',
@@ -54,7 +57,10 @@ class TrendPlotBuilder:
                        color=BuGn4[0], alpha=0.7, line_color="black", source=self.source, legend_label="Actual")
         # attributes
         self.plot.xaxis.axis_label = "Date"
-        self.plot.yaxis.axis_label = "Temperature (F)"
+        self.plot.yaxis.axis_label = "Temperature (\xb0C)"
         self.plot.axis.axis_label_text_font_style = "bold"
         self.plot.x_range = DataRange1d(range_padding=0.0)
         self.plot.grid.grid_line_alpha = 0.7
+
+    def get_plot(self):
+        return self.plot
