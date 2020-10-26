@@ -1,12 +1,12 @@
 import pandas as pd
+from datetime import date, timedelta
 
 
-class AllWeatherDataRetriever:
+class WeatherDataRetriever:
     """
-    Retrieves weather data from the Canada climate data API and stores it in a DataFrame.
-    The stored DataFrame has these columns:
-        date/time
-        station name
+    Retrieves weather data from the Canada climate data API and creates a DataFrame.
+    The resulting DataFrame has these columns:
+        date/time (index)
         min temp (c)
         max temp (c)
     """
@@ -15,15 +15,25 @@ class AllWeatherDataRetriever:
         self.weather_api_url = 'https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv' \
                                '&stationID={station}&Year={year}&Month={month}&timeframe={time_int}' \
                                '&submit=Download+Data'
-        self.weather_df = pd.DataFrame()  # DataFrame of entire history of daily min and max temperatures
 
-    def create_weather_df(self):
-        weather_df = self._get_weather_data()
-        self.weather_df = self._clean_data(weather_df)
-
-    def _get_weather_data(self) -> pd.DataFrame:
+    def create_all_weather_df(self):
         """
-        Helper function for retrieving the data from the API and concatenating the resulting dataframes
+        Returns a cleaned DataFrame of Calgary YYC min and max temperatures for all years
+        """
+        weather_df = self._get_all_weather_data()
+        weather_df = self._clean_data(weather_df)
+        return weather_df
+
+    def create_weather_df(self, station, year):
+        """
+        Returns a cleaned DataFrame of min and max temperatures for a given year
+        """
+        weather_df = self._call_api(station, year)
+        return self._clean_data(weather_df, drop_blanks=False)
+
+    def _get_all_weather_data(self) -> pd.DataFrame:
+        """
+        Helper function for retrieving all the Calgary YYC data from the API and concatenating the resulting dataframes
         @return: weather dataframe
         """
         df_list = []
@@ -54,34 +64,34 @@ class AllWeatherDataRetriever:
         return weather_data
 
     @staticmethod
-    def _clean_data(weather_df) -> pd.DataFrame:
+    def _clean_data(weather_df, drop_blanks=True) -> pd.DataFrame:
         """
         Takes a DataFrame with weather data, extracts only columns needed, converts column names to lower case,
-        drops NAs, then sorts and returns the DataFrame
+        drops NAs as appropriate, then sorts and returns the DataFrame
         """
-        all_weather_cleaned = weather_df[['Station Name', 'Min Temp (C)', 'Max Temp (C)']]
+        all_weather_cleaned = weather_df[['Min Temp (C)', 'Max Temp (C)']]
         all_weather_cleaned.columns = [col.lower() for col in all_weather_cleaned.columns]
-        all_weather_cleaned.dropna(inplace=True)
+        if drop_blanks:
+            all_weather_cleaned.dropna(inplace=True)
         all_weather_cleaned.sort_index(inplace=True)
         return all_weather_cleaned
 
-    def get_weather_df(self):
-        return self.weather_df
-
-    def save_to_csv(self):
+    @staticmethod
+    def save_to_csv(df):
         """
         Save the dataframe to csv for review (for testing purposes only)
         """
-        self.weather_df.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 yyc_weather web app/all_weather.csv")
+        df.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 yyc_weather web app/all_weather.csv")
 
 
 class WeatherStatsCreator:
+    """
+    Class used to create the stats for the Weather_Stats model.
+    """
 
     def __init__(self, weather_df):
         self.weather_df = weather_df  # DataFrame of entire history of daily min and max temperatures
-                                      # weather_df must have columns: date/time, station name,
-                                      # min temp (c), max temp (c)
-        self.weather_stats_df = pd.DataFrame()  # DataFrame of temperature statistics for each day of the year
+                                      # weather_df must have columns: date/time, min temp (c), max temp (c)
         self._add_month_day()
 
     def _add_month_day(self):
@@ -99,7 +109,8 @@ class WeatherStatsCreator:
         Creates the weather stats DataFrame in two steps, first creating the template, then creating the stats.
         """
         weather_stats = self._create_template()
-        self.weather_stats_df = self._create_temp_stats(weather_stats)
+        weather_stats_df = self._compute_stats(weather_stats)
+        return weather_stats_df
 
     def _create_template(self):
         """
@@ -113,7 +124,7 @@ class WeatherStatsCreator:
         weather_stats.sort_index(inplace=True)
         return weather_stats
 
-    def _create_temp_stats(self, weather_stats):
+    def _compute_stats(self, weather_stats):
         """
         Creates the temperature stats for each day of year (366 total):
             record minimum temperature
@@ -132,21 +143,24 @@ class WeatherStatsCreator:
         weather_stats[f'stats_count'] = groupby.count()
         return weather_stats
 
-    def save_to_csv(self):
+    @staticmethod
+    def save_to_csv(df):
         """
         Save the dataframe to csv for review (for testing purposes only)
         """
-        self.weather_stats_df.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 yyc_weather web app/weather_stats.csv")
+        df.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 yyc_weather web app/weather_stats.csv")
 
 
 class CurrentWeatherDataRetriever:
-    pass
+    """
+    Class used to create a DataFrame of latest weather min and max temperatures
+    """
 
 
 if __name__ == "__main__":
-    retriever = AllWeatherDataRetriever()
-    retriever.create_weather_df()
-    retriever.save_to_csv()
-    stats_creator = WeatherStatsCreator(retriever.get_weather_df())
-    stats_creator.create_weather_stats()
-    stats_creator.save_to_csv()
+    retriever = WeatherDataRetriever()
+    all_weather = retriever.create_all_weather_df()
+    retriever.save_to_csv(all_weather)
+    stats_creator = WeatherStatsCreator(all_weather)
+    stats = stats_creator.create_weather_stats()
+    stats_creator.save_to_csv(stats)
