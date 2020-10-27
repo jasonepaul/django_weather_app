@@ -19,4 +19,4 @@ class CurrentWx(models.Model):
     date = models.DateField(primary_key=True, null=False, blank=False, help_text="month and day")
     min_temp = models.FloatField(null=True, blank=True)
     max_temp = models.FloatField(null=True, blank=True)
-    month_day = models.ForeignKey(WxStats, unique=True, null=False, blank=False)
+    month_day = models.OneToOneField(WxStats, on_delete=models.DO_NOTHING, unique=True, null=False, blank=False)

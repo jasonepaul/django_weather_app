@@ -47,4 +47,20 @@ class ModelUpdator:
 
 
 if __name__ == "__main__":
-    pass
+
+    latest = pd.read_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather - Copy.csv")
+    latest['date'] = pd.to_datetime(latest.date)
+    latest.set_index("date", inplace=True)
+    print(latest.info())
+
+    weather_stats = pd.read_csv(
+        "C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats - Copy.csv")
+    weather_stats['last_date'] = pd.to_datetime(weather_stats.last_date)
+    weather_stats.set_index("month-day", inplace=True)
+    print(weather_stats.info())
+
+    DBInitializer().initialize_stats()
+    stat_record = WxStats.objects.filter(month_day__exact="08-01")
+    print("Stats for Aug 1:\n", stat_record)
+    num_records = WxStats.objects.count()
+    print("stats item count: ", num_records)
