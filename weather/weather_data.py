@@ -10,7 +10,7 @@ class WeatherDataRetriever:
     """
     Retrieves weather data from the Canada climate data API and creates a DataFrame.
     The resulting DataFrame has these columns:
-        date/time (index)
+        date (index)
         min temp (c)
         max temp (c)
     """
@@ -64,6 +64,7 @@ class WeatherDataRetriever:
         weather_df.columns = [col.replace('\xb0', '') for col in weather_df.columns]  # remove degree symbol
         weather_df = weather_df[['Min Temp (C)', 'Max Temp (C)']]
         weather_df.columns = [col.lower() for col in weather_df.columns]
+        weather_df.index.rename('date', inplace=True)
         if drop_blanks:
             weather_df.dropna(inplace=True)
         weather_df.sort_index(inplace=True)
@@ -89,7 +90,7 @@ class WeatherStatsCreator:
 
     def __init__(self, weather_df):
         self.weather_df = weather_df  # DataFrame of entire history of daily min and max temperatures
-        # weather_df must have columns: date/time, min temp (c), max temp (c)
+        # weather_df must have columns: date, min temp (c), max temp (c)
 
     def create_weather_stats(self):
         """
@@ -147,6 +148,9 @@ def get_latest_weather(stations, num_weeks=12):
 
 
 if __name__ == "__main__":
+    """
+    Gives usage of the modules classes and functions.
+    """
     yyc_stations_all_years = ({'station_id': 2205,
                                'start_yr': 1881,
                                'end_yr': 2012},
