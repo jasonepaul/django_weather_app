@@ -43,7 +43,6 @@ def set_current_weather(from_api=True):
     print(latest_weather.head())
     print(latest_weather.info())
 
-    latest_weather.drop(columns=['month_day'], inplace=True)
     CurrentWx.objects.all().delete()
     entries = []
     for entry in latest_weather.T.to_dict().values():
@@ -51,6 +50,17 @@ def set_current_weather(from_api=True):
         entries.append(CurrentWx(**entry))
         print(entry)
     CurrentWx.objects.bulk_create(entries)
+
+
+def table_to_df(table):
+
+
+def get_plot_df():
+    if not CurrentWx.objects.exists():
+        set_current_weather(from_api=False)
+    if not WxStats.objects.exists():
+        set_stats(from_api=False)
+
 
 
 if __name__ == "__main__":

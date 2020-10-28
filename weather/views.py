@@ -16,7 +16,4 @@ def homepage(request):
     plot = builder.get_plot()
     script, div = components(plot)
 
-    set_stats(from_api=False)
-    set_current_weather(from_api=False)
-
     return render(request, "weather/base.html", {'script': script, 'div': div})
