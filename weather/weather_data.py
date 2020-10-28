@@ -98,6 +98,7 @@ class WeatherStatsCreator:
         """
         weather_stats = self._create_template()
         weather_stats_df = self._compute_stats(weather_stats)
+        weather_stats_df = weather_stats_df.reset_index()
         return weather_stats_df
 
     def _create_template(self):
@@ -144,6 +145,7 @@ def get_latest_weather(stations, num_weeks=12):
     end = date.today() - timedelta(days=1)
     start = end - timedelta(days=(7 * num_weeks) - 1)
     most_recent = curr_weather[str(start):str(end)]
+    most_recent = most_recent.reset_index()
     return most_recent
 
 
@@ -161,16 +163,18 @@ if __name__ == "__main__":
     retriever = WeatherDataRetriever(WEATHER_URL)
     all_weather = retriever.create_weather_df(yyc_stations_all_years, drop_blanks=True)
     all_weather.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/all_weather.csv")
+    print(all_weather.info())
 
     stats_creator = WeatherStatsCreator(all_weather)
     stats = stats_creator.create_weather_stats()
-    stats.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats.csv")
+    stats.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats.csv", index=False)
+    print(stats.info())
 
     yyc_current_station = ({'station_id': 50430,
                             'start_yr': date.today().year - 1,
                             'end_yr': date.today().year},
                            )
     latest_weather = get_latest_weather(yyc_current_station)
-    latest_weather.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather.csv")
+    latest_weather.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather.csv", index=False)
     print(latest_weather.info())
-    print(latest_weather.head())
+
