@@ -5,18 +5,18 @@ from django.db import models
 
 class WxStats(models.Model):
     """ Model representing the temperature stats"""
-    month_day = models.TextField(primary_key=True, max_length=5, null=False, blank=False, help_text="month and day")
+    month_day = models.TextField(primary_key=True, max_length=5, null=False, blank=False)
     last_date = models.DateField(null=False, blank=False)
+    stats_count = models.IntegerField(null=False, blank=False)
     record_min_temp = models.FloatField(null=False, blank=False)
     avg_min_temp = models.FloatField(null=False, blank=False)
     avg_max_temp = models.FloatField(null=False, blank=False)
     record_max_temp = models.FloatField(null=False, blank=False)
-    stats_count = models.IntegerField(null=False, blank=False)
 
 
 class CurrentWx(models.Model):
     """ Model representing the recent min and max temperatures"""
-    date = models.DateField(primary_key=True, null=False, blank=False, help_text="month and day")
+    date = models.DateField(primary_key=True, null=False, blank=False)
+    month_day = models.TextField(max_length=5, null=False, blank=False)
     min_temp = models.FloatField(null=True, blank=True)
     max_temp = models.FloatField(null=True, blank=True)
-    month_day = models.OneToOneField(WxStats, on_delete=models.DO_NOTHING, unique=True, null=False, blank=False)

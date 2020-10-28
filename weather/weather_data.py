@@ -73,13 +73,13 @@ class WeatherDataRetriever:
     @staticmethod
     def _add_month_day(weather_df):
         """
-        Adds the month-day column to the DataFrame
+        Adds the month_day column to the DataFrame
         """
         month = weather_df.index.month.astype(str)
         month = month.map(lambda x: str(x) if len(x) == 2 else '0' + str(x))
         day = weather_df.index.day.astype(str)
         day = day.map(lambda x: str(x) if len(x) == 2 else '0' + str(x))
-        weather_df['month-day'] = month + "-" + day
+        weather_df['month_day'] = month + "-" + day
         return weather_df
 
 
@@ -104,11 +104,11 @@ class WeatherStatsCreator:
         """
         Helper that uses the weather_df as a starting point to put together the weather_stats_df
         """
-        month_day_series = self.weather_df.drop_duplicates(subset=['month-day'], keep='last')['month-day']
+        month_day_series = self.weather_df.drop_duplicates(subset=['month_day'], keep='last')['month_day']
         weather_stats = pd.DataFrame()
-        weather_stats['month-day'] = month_day_series
+        weather_stats['month_day'] = month_day_series
         weather_stats['last_date'] = month_day_series.index  # last date this day-of-year has temperature data for
-        weather_stats.set_index(['month-day'], inplace=True)
+        weather_stats.set_index(['month_day'], inplace=True)
         weather_stats.sort_index(inplace=True)
         return weather_stats
 
@@ -122,10 +122,10 @@ class WeatherStatsCreator:
         @param weather_stats: the weather stats template DataFrame
         @return: weather stats DataFrame
         """
-        groupby = self.weather_df.groupby('month-day')[f'min temp (c)']
+        groupby = self.weather_df.groupby('month_day')[f'min temp (c)']
         weather_stats[f'record_min_temp'] = groupby.min()
         weather_stats[f'avg_min_temp'] = groupby.mean()
-        groupby = self.weather_df.groupby('month-day')[f'max temp (c)']
+        groupby = self.weather_df.groupby('month_day')[f'max temp (c)']
         weather_stats[f'avg_max_temp'] = groupby.mean()
         weather_stats[f'record_max_temp'] = groupby.max()
         weather_stats[f'stats_count'] = groupby.count()
@@ -172,6 +172,5 @@ if __name__ == "__main__":
                            )
     latest_weather = get_latest_weather(yyc_current_station)
     latest_weather.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather.csv")
-    latest_weather.info()
-    latest_weather.head()
-    latest_weather.tail()
+    print(latest_weather.info())
+    print(latest_weather.head())
