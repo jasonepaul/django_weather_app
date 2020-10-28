@@ -12,7 +12,7 @@ from weather.model_manager import get_plot_df
 def homepage(request):
 
     data_file = Path(__file__).resolve().parent.joinpath("data", "2015_weather.csv")
-    builder = TrendPlotBuilder(data_file, smoothed=False)
+    builder = TrendPlotBuilder(smoothed=True)
     plot = builder.get_plot()
     script, div = components(plot)
 

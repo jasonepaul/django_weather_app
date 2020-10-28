@@ -4,15 +4,14 @@ from scipy.signal import savgol_filter
 from bokeh.models import ColumnDataSource, DataRange1d
 from bokeh.palettes import BuGn4
 from bokeh.plotting import figure
+from weather.model_manager import get_plot_df
 
 
 class TrendPlotBuilder:
 
-    STATISTICS = ['record_min_temp', 'actual_min_temp', 'average_min_temp',
-                  'average_max_temp', 'actual_max_temp', 'record_max_temp']
+    STATISTICS = ['record_min_temp', 'record_max_temp']
 
-    def __init__(self, file_path, smoothed=False):
-        self.data_file = file_path
+    def __init__(self, smoothed=False):
         self.weather_df = None
         self.source = None  # a ColumnDataSource object
         self.plot = None  # a Figure object
@@ -21,16 +20,12 @@ class TrendPlotBuilder:
 
     def build_trend_plot(self):
 
-        self.create_df_from_csv()
+        self.create_df_from_db()
         self.process_dataset()
         self.make_plot()
 
-    def create_df_from_csv(self):
-        self.weather_df = pd.read_csv(self.data_file)
-
     def create_df_from_db(self):
-        # TODO need to access the bd in here
-        pass
+        self.weather_df = get_plot_df()
 
     def process_dataset(self):
         df = self.weather_df
@@ -39,21 +34,22 @@ class TrendPlotBuilder:
         df['right'] = df.date + datetime.timedelta(days=0.5)
         df = df.set_index(['date'])
         df.sort_index(inplace=True)
-        df = df[-(7*12):]
         if self.smoothed:
-            window, order = 51, 3
-            for key in self.STATISTICS:
+            window, order = 7, 3
+            for key in TrendPlotBuilder.STATISTICS:
                 df[key] = savgol_filter(df[key], window, order)
         self.source = ColumnDataSource(data=df)
 
     def make_plot(self):
-        self.plot = figure(x_axis_type="datetime", plot_width=800, tools="", toolbar_location=None)
+        self.plot = figure(x_axis_type="datetime", plot_width=800, tools=["pan", "reset", "wheel_zoom", "box_zoom"])
         self.plot.title.text = "Temperature Trend for Calgary (YYC Airport)"
+        self.plot.title.align = "center"
+        self.plot.title.text_font_size = "25px"
         self.plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',
                        color=BuGn4[2], source=self.source, legend_label="Record")
-        self.plot.quad(top='average_max_temp', bottom='average_min_temp', left='left', right='right',
+        self.plot.quad(top='avg_max_temp', bottom='avg_min_temp', left='left', right='right',
                        color=BuGn4[1], source=self.source, legend_label="Average")
-        self.plot.quad(top='actual_max_temp', bottom='actual_min_temp', left='left', right='right',
+        self.plot.quad(top='max_temp', bottom='min_temp', left='left', right='right',
                        color=BuGn4[0], alpha=0.7, line_color="black", source=self.source, legend_label="Actual")
         # attributes
         self.plot.xaxis.axis_label = "Date"

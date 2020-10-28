@@ -64,9 +64,4 @@ def get_plot_df():
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
     plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
     plot_df = plot_df.drop(columns=['month_day'])
-    print(plot_df.info())
     return plot_df
-
-
-if __name__ == "__main__":
-    pass
