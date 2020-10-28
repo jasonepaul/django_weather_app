@@ -64,9 +64,10 @@ class WeatherDataRetriever:
         weather_df.columns = [col.replace('\xb0', '') for col in weather_df.columns]  # remove degree symbol
         weather_df = weather_df[['Min Temp (C)', 'Max Temp (C)']]
         weather_df.columns = [col.lower() for col in weather_df.columns]
+        weather_df = weather_df.rename(columns={"min temp (c)": "min_temp", "max temp (c)": "max_temp"})
         weather_df.index.rename('date', inplace=True)
         if drop_blanks:
-            weather_df.dropna(inplace=True)
+            weather_df = weather_df.dropna()
         weather_df.sort_index(inplace=True)
         return weather_df
 
@@ -90,7 +91,7 @@ class WeatherStatsCreator:
 
     def __init__(self, weather_df):
         self.weather_df = weather_df  # DataFrame of entire history of daily min and max temperatures
-        # weather_df must have columns: date, min temp (c), max temp (c)
+        # weather_df must have columns: date, min_temp, max_temp
 
     def create_weather_stats(self):
         """
@@ -123,10 +124,10 @@ class WeatherStatsCreator:
         @param weather_stats: the weather stats template DataFrame
         @return: weather stats DataFrame
         """
-        groupby = self.weather_df.groupby('month_day')[f'min temp (c)']
+        groupby = self.weather_df.groupby('month_day')[f'min_temp']
         weather_stats[f'record_min_temp'] = groupby.min()
         weather_stats[f'avg_min_temp'] = groupby.mean()
-        groupby = self.weather_df.groupby('month_day')[f'max temp (c)']
+        groupby = self.weather_df.groupby('month_day')[f'max_temp']
         weather_stats[f'avg_max_temp'] = groupby.mean()
         weather_stats[f'record_max_temp'] = groupby.max()
         weather_stats[f'stats_count'] = groupby.count()
@@ -147,6 +148,23 @@ def get_latest_weather(stations, num_weeks=12):
     most_recent = curr_weather[str(start):str(end)]
     most_recent = most_recent.reset_index()
     return most_recent
+
+
+def get_wx_stats_from_csv():
+    weather_stats = pd.read_csv(
+        "C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats.csv")
+    weather_stats['last_date'] = pd.to_datetime(weather_stats.last_date)
+    # weather_stats.set_index("month_day", inplace=True)
+    # print(weather_stats.info())
+    return weather_stats
+
+
+def get_latest_wx_from_csv():
+    latest = pd.read_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather.csv")
+    latest['date'] = pd.to_datetime(latest.date)
+    # latest.set_index("date", inplace=True)
+    # print(latest.info())
+    return latest
 
 
 if __name__ == "__main__":
