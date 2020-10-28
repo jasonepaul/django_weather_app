@@ -26,7 +26,6 @@ def set_stats(from_api=True):
     entries = []
     for entry in stats.T.to_dict().values():
         entries.append(WxStats(**entry))
-        print(entry)
     WxStats.objects.bulk_create(entries)
 
 
@@ -40,19 +39,19 @@ def set_current_weather(from_api=True):
         latest_weather = get_latest_weather(yyc_current_station)
     else:
         latest_weather = get_latest_wx_from_csv()
-    print(latest_weather.head())
-    print(latest_weather.info())
 
     CurrentWx.objects.all().delete()
     entries = []
     for entry in latest_weather.T.to_dict().values():
         entry = {k: v for k, v in entry.items() if not pd.isnull(v)}  # don't include blank fields
         entries.append(CurrentWx(**entry))
-        print(entry)
     CurrentWx.objects.bulk_create(entries)
 
 
 def table_to_df(table):
+    table_list = list(table.objects.all().values())
+    df = pd.DataFrame(table_list)
+    return df
 
 
 def get_plot_df():
@@ -60,7 +59,13 @@ def get_plot_df():
         set_current_weather(from_api=False)
     if not WxStats.objects.exists():
         set_stats(from_api=False)
-
+    current_wx = table_to_df(CurrentWx)
+    wx_stats = table_to_df(WxStats)
+    wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
+    plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
+    plot_df = plot_df.drop(columns=['month_day'])
+    print(plot_df.info())
+    return plot_df
 
 
 if __name__ == "__main__":
