@@ -89,10 +89,3 @@ def update_weather_tables():
         rec.stats_count = new_stats_count
         rec.last_date = d
         rec.save()
-
-    table_to_df(WxStats).to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats - test.csv", index=False)
-    table_to_df(CurrentWx).to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather - test.csv", index=False)
-
-
-if __name__ == '__main__':
-    df = table_to_df(CurrentWx)
