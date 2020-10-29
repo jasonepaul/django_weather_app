@@ -1,7 +1,7 @@
 import datetime
 import pandas as pd
 from scipy.signal import savgol_filter
-from bokeh.models import ColumnDataSource, DataRange1d
+from bokeh.models import ColumnDataSource, DataRange1d, HoverTool
 from bokeh.palettes import BuGn4
 from bokeh.plotting import figure
 from weather.model_manager import get_plot_df
@@ -42,8 +42,8 @@ class TrendPlotBuilder:
 
     def make_plot(self):
         self.plot = figure(x_axis_type="datetime", plot_width=800,
-                           tools=["pan", "reset", "box_zoom", "hover"],
-                           tooltips=[('min', '@min_temp'), ('max', '@max_temp')])
+                           tools='pan, reset, box_zoom',
+                           )
         self.plot.title.text = "Temperature Trend for Calgary (YYC Airport)"
         self.plot.title.align = "center"
         self.plot.title.text_font_size = "25px"
@@ -51,8 +51,16 @@ class TrendPlotBuilder:
                        color=BuGn4[2], source=self.source, legend_label="Record")
         self.plot.quad(top='avg_max_temp', bottom='avg_min_temp', left='left', right='right',
                        color=BuGn4[1], source=self.source, legend_label="Average")
-        self.plot.quad(top='max_temp', bottom='min_temp', left='left', right='right',
+        r = self.plot.quad(top='max_temp', bottom='min_temp', left='left', right='right',
                        color=BuGn4[0], alpha=0.7, line_color="black", source=self.source, legend_label="Actual")
+        # hover tool
+        hover_tool = HoverTool(tooltips=[('Actuals', ''), ('date', '@date{%a %b %d}'),
+                                         ('min', '@min_temp{0.0}\xb0C'),
+                                         ('max', '@max_temp{0.0}\xb0C')],
+                               formatters={'@date': 'datetime'},
+                               renderers=[r],
+                               mode='vline')
+        self.plot.add_tools(hover_tool)
         # attributes
         self.plot.xaxis.axis_label = "Date"
         self.plot.yaxis.axis_label = "Temperature (\xb0C)"
