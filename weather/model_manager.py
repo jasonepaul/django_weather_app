@@ -1,20 +1,22 @@
 from datetime import date
 import pandas as pd
+from weather.models import WxStats, CurrentWx
 from weather.weather_data import WeatherDataRetriever, WeatherStatsCreator, \
     get_latest_weather, WEATHER_URL, get_wx_stats_from_csv, get_latest_wx_from_csv
-from weather.models import WxStats, CurrentWx
 
 
 def set_stats(from_api=True):
-    print("\nPopulating the WxStats db table\n")
+    """
+    Initializes the db table for weather stats
+    @param from_api: Whether to pull the data from the online API of from a csv file
+    """
     if from_api:
         yyc_stations_all_years = ({'station_id': 2205,
                                    'start_yr': 1881,
                                    'end_yr': 2012},
                                   {'station_id': 50430,
                                    'start_yr': 2012,
-                                   'end_yr': 2020},
-                                  )
+                                   'end_yr': 2020},)
         retriever = WeatherDataRetriever(WEATHER_URL)
         all_weather = retriever.create_weather_df(yyc_stations_all_years, drop_blanks=True)
         stats_creator = WeatherStatsCreator(all_weather)
@@ -30,12 +32,15 @@ def set_stats(from_api=True):
 
 
 def set_current_weather(from_api=True):
-    print("\nPopulating the CurrentWx db table\n")
+    """
+    Initializes the db table for latest weeks of weather (min and max daily temperature)
+    @param from_api: Whether to pull the data from the online API of from a csv file
+    @return: DataFrame for the latest weather
+    """
     if from_api:
         yyc_current_station = ({'station_id': 50430,
                                 'start_yr': date.today().year - 1,
-                                'end_yr': date.today().year},
-                               )
+                                'end_yr': date.today().year},)
         latest_weather = get_latest_weather(yyc_current_station)
     else:
         latest_weather = get_latest_wx_from_csv()
@@ -56,10 +61,9 @@ def table_to_df(table):
 
 
 def get_plot_df():
-    if not CurrentWx.objects.exists():
-        set_current_weather(from_api=False)
     if not WxStats.objects.exists():
-        set_stats(from_api=False)
+        set_stats(from_api=True)
+    update_weather_tables()  # todo replace this call with background task
     current_wx = table_to_df(CurrentWx)
     wx_stats = table_to_df(WxStats)
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
@@ -69,16 +73,13 @@ def get_plot_df():
 
 
 def update_weather_tables():
-    print("calling set_current_weather() from update_weather_tables()")
     current_wx_df = set_current_weather(from_api=True)
     current_wx_df = current_wx_df.dropna()
     for index, row in current_wx_df.iterrows():
         d, min_temp, max_temp, month_day = row['date'], row['min_temp'], row['max_temp'], row['month_day']
         rec = WxStats.objects.get(month_day=month_day)
         if d <= rec.last_date:
-            print("continued")
             continue
-        print("WxStats updated")
         if min_temp < rec.record_min_temp:
             rec.record_min_temp = min_temp
         if max_temp > rec.record_max_temp:

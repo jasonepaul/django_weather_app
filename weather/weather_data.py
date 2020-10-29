@@ -1,20 +1,23 @@
-import pandas as pd
 from datetime import date, timedelta
+from pathlib import Path
+import pandas as pd
 
 WEATHER_URL = 'https://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv' \
               '&stationID={station}&Year={year}&Month={month}&timeframe={time_int}' \
               '&submit=Download+Data'
 
+EXTERNAL_FILE_LOC = Path(r"C:/Users/Jason/Documents/_Projects/2020-10 weather web app")
+
 
 class WeatherDataRetriever:
     """
-    Retrieves weather data from the Canada climate data API and creates a DataFrame.
+    Used for retrieving weather data from the Canada climate data API and creates a DataFrame.
     The resulting DataFrame has these columns:
         date (index)
-        min temp (c)
-        max temp (c)
+        min_temp
+        max_temp
+        month_day
     """
-
     def __init__(self, url):
         self.weather_api_url = url
 
@@ -86,9 +89,8 @@ class WeatherDataRetriever:
 
 class WeatherStatsCreator:
     """
-    Class used to create the stats for the Weather_Stats model.
+    Used for creating the stats for the WxStats model.
     """
-
     def __init__(self, weather_df):
         self.weather_df = weather_df  # DataFrame of entire history of daily min and max temperatures
         # weather_df must have columns: date, min_temp, max_temp
@@ -151,48 +153,20 @@ def get_latest_weather(stations, num_weeks=12):
 
 
 def get_wx_stats_from_csv():
-    weather_stats = pd.read_csv(
-        "C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats.csv")
+    """
+    Test helper: retrieves saved weather stats from file
+    """
+    path = Path.joinpath(EXTERNAL_FILE_LOC, "weather_stats.csv")
+    weather_stats = pd.read_csv(path)
     weather_stats['last_date'] = pd.to_datetime(weather_stats.last_date)
-    # weather_stats.set_index("month_day", inplace=True)
-    # print(weather_stats.info())
     return weather_stats
 
 
 def get_latest_wx_from_csv():
-    latest = pd.read_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather.csv")
+    """
+    Test helper: retrieves saved latest weather data from file
+    """
+    path = Path.joinpath(EXTERNAL_FILE_LOC, "latest_weather.csv")
+    latest = pd.read_csv(path)
     latest['date'] = pd.to_datetime(latest.date)
-    # latest.set_index("date", inplace=True)
-    # print(latest.info())
     return latest
-
-
-if __name__ == "__main__":
-    """
-    Gives usage of the modules classes and functions.
-    """
-    yyc_stations_all_years = ({'station_id': 2205,
-                               'start_yr': 1881,
-                               'end_yr': 2012},
-                              {'station_id': 50430,
-                               'start_yr': 2012,
-                               'end_yr': 2020},
-                              )
-    retriever = WeatherDataRetriever(WEATHER_URL)
-    all_weather = retriever.create_weather_df(yyc_stations_all_years, drop_blanks=True)
-    all_weather.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/all_weather.csv")
-    print(all_weather.info())
-
-    stats_creator = WeatherStatsCreator(all_weather)
-    stats = stats_creator.create_weather_stats()
-    stats.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats.csv", index=False)
-    print(stats.info())
-
-    yyc_current_station = ({'station_id': 50430,
-                            'start_yr': date.today().year - 1,
-                            'end_yr': date.today().year},
-                           )
-    latest_weather = get_latest_weather(yyc_current_station)
-    latest_weather.to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather.csv", index=False)
-    print(latest_weather.info())
-

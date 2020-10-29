@@ -22,3 +22,6 @@ __pycache__/
 
 # DotEnv configuration
 .env
+
+# db files
+db.sqlite3

@@ -67,9 +67,6 @@ class TrendPlotBuilder:
         self.plot.axis.axis_label_text_font_style = "bold"
         self.plot.x_range = DataRange1d(range_padding=0.0)
         self.plot.grid.grid_line_alpha = 1.0
-        self.plot.xaxis.major_tick_line_width = 3
-        self.plot.xaxis.minor_tick_line_width = 3
-        self.plot.xaxis.minor_tick_out = 8
 
     def get_plot(self):
         return self.plot
