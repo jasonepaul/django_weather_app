@@ -65,7 +65,6 @@ def get_plot_df():
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
     plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
     plot_df = plot_df.drop(columns=['month_day'])
-    # update_weather_tables()
     return plot_df
 
 
@@ -79,18 +78,20 @@ def update_weather_tables():
         if d <= rec.last_date:
             print("continued")
             continue
-        print("At least one record in WxStats is being changed")
+        print("WxStats updated")
         if min_temp < rec.record_min_temp:
             rec.record_min_temp = min_temp
-        if max_temp > rec.record_max_tempp:
+        if max_temp > rec.record_max_temp:
             rec.record_max_temp = max_temp
         new_stats_count = rec.stats_count + 1
         rec.avg_min_temp = (rec.avg_min_temp * rec.stats_count + min_temp) / new_stats_count
         rec.avg_max_temp = (rec.avg_max_temp * rec.stats_count + max_temp) / new_stats_count
         rec.stats_count = new_stats_count
+        rec.last_date = d
         rec.save()
 
-
+    table_to_df(WxStats).to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/weather_stats - test.csv", index=False)
+    table_to_df(CurrentWx).to_csv("C:/Users/Jason/Documents/_Projects/2020-10 weather web app/latest_weather - test.csv", index=False)
 
 
 if __name__ == '__main__':

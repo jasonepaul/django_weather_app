@@ -4,7 +4,7 @@ from scipy.signal import savgol_filter
 from bokeh.models import ColumnDataSource, DataRange1d, HoverTool
 from bokeh.palettes import BuGn4
 from bokeh.plotting import figure
-from weather.model_manager import get_plot_df
+from weather.model_manager import get_plot_df, update_weather_tables
 
 
 class TrendPlotBuilder:
