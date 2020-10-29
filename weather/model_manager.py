@@ -46,6 +46,7 @@ def set_current_weather(from_api=True):
         entry = {k: v for k, v in entry.items() if not pd.isnull(v)}  # don't include blank fields
         entries.append(CurrentWx(**entry))
     CurrentWx.objects.bulk_create(entries)
+    return latest_weather
 
 
 def table_to_df(table):
@@ -64,4 +65,33 @@ def get_plot_df():
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
     plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
     plot_df = plot_df.drop(columns=['month_day'])
+    # update_weather_tables()
     return plot_df
+
+
+def update_weather_tables():
+    print("calling set_current_weather() from update_weather_tables()")
+    current_wx_df = set_current_weather(from_api=True)
+    current_wx_df = current_wx_df.dropna()
+    for index, row in current_wx_df.iterrows():
+        d, min_temp, max_temp, month_day = row['date'], row['min_temp'], row['max_temp'], row['month_day']
+        rec = WxStats.objects.get(month_day=month_day)
+        if d <= rec.last_date:
+            print("continued")
+            continue
+        print("At least one record in WxStats is being changed")
+        if min_temp < rec.record_min_temp:
+            rec.record_min_temp = min_temp
+        if max_temp > rec.record_max_tempp:
+            rec.record_max_temp = max_temp
+        new_stats_count = rec.stats_count + 1
+        rec.avg_min_temp = (rec.avg_min_temp * rec.stats_count + min_temp) / new_stats_count
+        rec.avg_max_temp = (rec.avg_max_temp * rec.stats_count + max_temp) / new_stats_count
+        rec.stats_count = new_stats_count
+        rec.save()
+
+
+
+
+if __name__ == '__main__':
+    df = table_to_df(CurrentWx)

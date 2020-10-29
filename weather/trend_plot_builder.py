@@ -9,7 +9,7 @@ from weather.model_manager import get_plot_df
 
 class TrendPlotBuilder:
 
-    STATISTICS = ['record_min_temp', 'record_max_temp']
+    STATISTICS = ['avg_min_temp', 'avg_max_temp']
 
     def __init__(self, smoothed=False):
         self.weather_df = None
@@ -35,13 +35,15 @@ class TrendPlotBuilder:
         df = df.set_index(['date'])
         df.sort_index(inplace=True)
         if self.smoothed:
-            window, order = 7, 3
+            window, order = 31, 2
             for key in TrendPlotBuilder.STATISTICS:
                 df[key] = savgol_filter(df[key], window, order)
         self.source = ColumnDataSource(data=df)
 
     def make_plot(self):
-        self.plot = figure(x_axis_type="datetime", plot_width=800, tools=["pan", "reset", "wheel_zoom", "box_zoom"])
+        self.plot = figure(x_axis_type="datetime", plot_width=800,
+                           tools=["pan", "reset", "box_zoom", "hover"],
+                           tooltips=[('min', '@min_temp'), ('max', '@max_temp')])
         self.plot.title.text = "Temperature Trend for Calgary (YYC Airport)"
         self.plot.title.align = "center"
         self.plot.title.text_font_size = "25px"
@@ -56,7 +58,10 @@ class TrendPlotBuilder:
         self.plot.yaxis.axis_label = "Temperature (\xb0C)"
         self.plot.axis.axis_label_text_font_style = "bold"
         self.plot.x_range = DataRange1d(range_padding=0.0)
-        self.plot.grid.grid_line_alpha = 0.7
+        self.plot.grid.grid_line_alpha = 1.0
+        self.plot.xaxis.major_tick_line_width = 3
+        self.plot.xaxis.minor_tick_line_width = 3
+        self.plot.xaxis.minor_tick_out = 8
 
     def get_plot(self):
         return self.plot
