@@ -21,11 +21,11 @@
     {{ script | safe }}
 </head>
 <body>
-    <div class="container d-flex w-100 h-100 p-3 mx-auto flex-column">
-      <header class="masthead">
-        <div class="inner">
-          <h3 class="masthead-brand">Calgary Temperature Trend - Most Recent 8 Weeks</h3>
-        </div>
+    <div class="container-fluid d-flex w-100 h-100 p-3 mx-auto flex-column">
+      <header class="masthead mb-auto">
+          <div class="inner">
+              <h3 class="masthead-brand">Calgary Temperature Trend - Most Recent 8 Weeks</h3>
+          </div>
       </header>
 
       <main role="main" class="inner">
@@ -33,21 +33,21 @@
           <div  class="inner mt-5">
               <p>
                   Hover over plot for display of actual temperature
-                  values for a given day.
+                  values for select day.
               </p>
               <p>
-                  Average temperature ranges are based on {{max_years}}
-                  years of data (starting in 1881)
+                  Average and record temperature ranges are based on {{max_years}}
+                  years of data (starting in 1881).
               </p>
               <p>
                   Raw data obtained from Canada Environment and Natural Resources
-                  <a href="https://climate.weather.gc.ca/">Historical Climate Data</a>
+                  <a href="https://climate.weather.gc.ca/">Historical Climate Data</a>.
               </p>
           </div>
       </main>
 
       <footer class="mastfoot mt-auto">
-        <div class="inner">
+        <div class="inner text-center ">
           <p>Page by Jason Paul</p>
         </div>
       </footer>

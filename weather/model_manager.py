@@ -63,7 +63,7 @@ def table_to_df(table):
 def get_plot_df():
     if not WxStats.objects.exists():
         set_stats(from_api=True)
-    update_weather_tables()  # todo replace this call with background task
+    # update_weather_tables()  # todo replace this call with background task
     current_wx = table_to_df(CurrentWx)
     wx_stats = table_to_df(WxStats)
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
