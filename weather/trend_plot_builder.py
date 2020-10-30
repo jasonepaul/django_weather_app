@@ -41,9 +41,9 @@ class TrendPlotBuilder:
         self.source = ColumnDataSource(data=df)
 
     def make_plot(self):
-        self.plot = figure(x_axis_type="datetime", plot_width=800,
+        self.plot = figure(x_axis_type="datetime", plot_width=600,
                            tools='pan, reset, box_zoom',)
-        self.plot.xaxis.formatter = DatetimeTickFormatter(days=["%b %d, %Y"])
+        self.plot.xaxis.formatter = DatetimeTickFormatter(days=["%b %d"])
         self.plot.title.text = "Temperature Trend for Calgary (YYC Airport)"
         self.plot.title.align = "center"
         self.plot.title.text_font_size = "25px"

@@ -136,7 +136,7 @@ class WeatherStatsCreator:
         return weather_stats
 
 
-def get_latest_weather(stations, num_weeks=12):
+def get_latest_weather(stations, num_weeks=8):
     """
     Returns a DataFrame of min and max temperatures for the most recent num_weeks
     @param stations: weather station IDs
