@@ -22,37 +22,36 @@
 </head>
 <body>
     <div class="container-fluid d-flex w-100 h-100 p-3 mx-auto flex-column">
-      <header class="masthead mb-auto">
-          <div class="inner">
-              <h3 class="masthead-brand">Calgary Temperature Trend - Most Recent 8 Weeks</h3>
-          </div>
-      </header>
+        <header>
+            <nav class="navbar navbar-light fixed-top" style="background-color: #e3f2fd;">
+                <h3 class="nav-item navbar-inner">Calgary, AB - Temperature Trend - Most Recent 8 Weeks</h3>
+            </nav>
+        </header>
 
-      <main role="main" class="inner">
-        {{ div | safe }}
-          <div  class="inner mt-5">
-              <p>
-                  Hover over plot for display of actual temperature
+        <main role="main" class="p-3">
+            {{ div | safe }}
+            <div class="mt-5">
+                <p>
+                  If using a mouse, hover over plot for display of actual temperature
                   values for select day.
-              </p>
-              <p>
+                </p>
+                <p>
                   Average and record temperature ranges are based on {{max_years}}
-                  years of data (starting in 1881).
-              </p>
-              <p>
+                  years of data (starting in 1881). Averages have been smoothed.
+                </p>
+                <p>
                   Raw data obtained from Canada Environment and Natural Resources
                   <a href="https://climate.weather.gc.ca/">Historical Climate Data</a>.
-              </p>
-          </div>
-      </main>
+                </p>
+            </div>
+        </main>
 
-      <footer class="mastfoot mt-auto">
-        <div class="inner text-center ">
-          <p>Page by Jason Paul</p>
+        <div class="mt-auto border">
+            <div class="inner text-center">
+                <p class="text-muted">Created by Jason Paul</p>
+            </div>
         </div>
-      </footer>
     </div>
-
     <!-- Bootstrap JS -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
