@@ -14,7 +14,6 @@ def homepage(request):
     plot = builder.get_plot()
     script, div = components(plot)
     max_years = WxStats.objects.order_by("-stats_count")[0].stats_count
-    print(max_years)
     context = {'script': script,
                'div': div,
                'max_years': max_years}
