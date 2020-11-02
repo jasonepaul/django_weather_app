@@ -13,6 +13,10 @@
     <!-- static file CSS -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'site.webmanifest' %}">
 
     <!-- Bokeh JS -->
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.2.min.js" crossorigin="anonymous"></script>
@@ -36,7 +40,7 @@
                   values for select day.
                 </p>
                 <p>
-                  Average and record temperature ranges are based on {{max_years}}
+                  Average and record temperature ranges are based on up to {{max_years}}
                   years of data (starting in 1881). Averages have been smoothed.
                 </p>
                 <p>
