@@ -1,6 +1,6 @@
 from datetime import date
 import pandas as pd
-from weather.models import WxStats, CurrentWx
+from weather.models import WxStats, CurrentWx, Info
 from weather.weather_data import WeatherDataRetriever, WeatherStatsCreator, \
     get_latest_weather, WEATHER_URL, get_wx_stats_from_csv, get_latest_wx_from_csv
 
@@ -11,19 +11,13 @@ def set_stats(from_api=True):
     @param from_api: Whether to pull the data from the online API of from a csv file
     """
     if from_api:
-        yyc_stations_all_years = ({'station_id': 2205,
-                                   'start_yr': 1881,
-                                   'end_yr': 2012},
-                                  {'station_id': 50430,
-                                   'start_yr': 2012,
-                                   'end_yr': 2020},)
+        yyc_stations_all_years = ({'station_id': 2205, 'start_yr': 1881, 'end_yr': 2012},
+                                  {'station_id': 50430, 'start_yr': 2012, 'end_yr': 2020},)
         retriever = WeatherDataRetriever(WEATHER_URL)
         all_weather = retriever.create_weather_df(yyc_stations_all_years, drop_blanks=True)
-        stats_creator = WeatherStatsCreator(all_weather)
-        stats = stats_creator.create_weather_stats()
+        stats = WeatherStatsCreator(all_weather).create_weather_stats()
     else:
         stats = get_wx_stats_from_csv()
-
     WxStats.objects.all().delete()
     entries = []
     for entry in stats.T.to_dict().values():
@@ -38,13 +32,11 @@ def set_current_weather(from_api=True):
     @return: DataFrame for the latest weather
     """
     if from_api:
-        yyc_current_station = ({'station_id': 50430,
-                                'start_yr': date.today().year - 1,
+        yyc_current_station = ({'station_id': 50430, 'start_yr': date.today().year - 1,
                                 'end_yr': date.today().year},)
         latest_weather = get_latest_weather(yyc_current_station)
     else:
         latest_weather = get_latest_wx_from_csv()
-
     CurrentWx.objects.all().delete()
     entries = []
     for entry in latest_weather.T.to_dict().values():
@@ -54,22 +46,32 @@ def set_current_weather(from_api=True):
     return latest_weather
 
 
+def set_info():
+    """
+    Initialize the info table with a single record that keeps track of the date
+    of last db table data retrieval
+    """
+    Info.objects.all().delete()
+    Info(last_update=date.today()).save()
+
+
 def table_to_df(table):
+    """
+    Returns a db table as a dataframe
+    """
     table_list = list(table.objects.all().values())
     df = pd.DataFrame(table_list)
     return df
 
 
-def get_plot_df():
-    if not WxStats.objects.exists():
-        set_stats(from_api=True)
-    update_weather_tables()  # todo replace this call with background task
-    current_wx = table_to_df(CurrentWx)
-    wx_stats = table_to_df(WxStats)
-    wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
-    plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
-    plot_df = plot_df.drop(columns=['month_day'])
-    return plot_df
+def update_last_db_access_date():
+    info_rec = Info.objects.get(pk=1)
+    info_rec.last_update = date.today()
+    info_rec.save()
+
+
+def date_db_last_updated():
+    return Info.objects.get(pk=1).last_update
 
 
 def update_weather_tables():
@@ -90,3 +92,32 @@ def update_weather_tables():
         rec.stats_count = new_stats_count
         rec.last_date = d
         rec.save()
+    update_last_db_access_date()
+
+
+def initialize_db():
+    """
+    Initializes all database tables on first time access to the website.
+    """
+    set_stats(from_api=True)
+    set_current_weather(from_api=True)
+    set_info()
+
+
+def get_plot_df():
+    """
+    Returns a dataframe suitable for the Bokeh plot
+    """
+    if not WxStats.objects.exists():  # only true on first deployment at first server access
+        initialize_db()
+        print("initializing")
+    elif date_db_last_updated() < date.today():  # typically only true on the first server access of any given day
+        update_weather_tables()  # todo replace this call with background task
+        print("updating daily")
+    print("retrieving for query")
+    current_wx = table_to_df(CurrentWx)
+    wx_stats = table_to_df(WxStats)
+    wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
+    plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
+    plot_df = plot_df.drop(columns=['month_day'])
+    return plot_df

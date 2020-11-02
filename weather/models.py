@@ -20,3 +20,8 @@ class CurrentWx(models.Model):
     month_day = models.CharField(max_length=5, null=False, blank=False)
     min_temp = models.FloatField(null=True, blank=True)
     max_temp = models.FloatField(null=True, blank=True)
+
+
+class Info(models.Model):
+    """ Model to store the time of last tables update date"""
+    last_update = models.DateField(null=False, blank=False)
