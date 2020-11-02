@@ -23,5 +23,8 @@ __pycache__/
 # DotEnv configuration
 .env
 
+# Text backup files
+*.bak
+
 # db files
 db.sqlite3

@@ -110,11 +110,8 @@ def get_plot_df():
     """
     if not WxStats.objects.exists():  # only true on first deployment at first server access
         initialize_db()
-        print("initializing")
     elif date_db_last_updated() < date.today():  # typically only true on the first server access of any given day
         update_weather_tables()  # todo replace this call with background task
-        print("updating daily")
-    print("retrieving for query")
     current_wx = table_to_df(CurrentWx)
     wx_stats = table_to_df(WxStats)
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
