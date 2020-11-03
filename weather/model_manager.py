@@ -16,7 +16,7 @@ def set_stats(from_api=True):
     @param from_api: Whether to pull the data from the online API of from a csv file
     """
     if from_api:
-        yyc_stations_all_years = ({'station_id': 2205, 'start_yr': 1881, 'end_yr': 2012},
+        yyc_stations_all_years = ({'station_id': 2205, 'start_yr': 2010, 'end_yr': 2012},
                                   {'station_id': 50430, 'start_yr': 2012, 'end_yr': 2020},)
         retriever = WeatherDataRetriever(WEATHER_URL)
         all_weather = retriever.create_weather_df(yyc_stations_all_years, drop_blanks=True)
