@@ -1,14 +1,13 @@
 import datetime
 import pandas as pd
 from scipy.signal import savgol_filter
-from bokeh.models import ColumnDataSource, DataRange1d, HoverTool, DatetimeTickFormatter
+from bokeh.models import ColumnDataSource, DataRange1d, HoverTool, Legend
 from bokeh.palettes import BuGn4
 from bokeh.plotting import figure
 from weather.model_manager import get_plot_df
 
 
 class TrendPlotBuilder:
-
     STATISTICS = ['avg_min_temp', 'avg_max_temp']
 
     def __init__(self, smoothed=False):
@@ -35,38 +34,38 @@ class TrendPlotBuilder:
         df = df.set_index(['date'])
         df.sort_index(inplace=True)
         if self.smoothed:
-            window, order = 31, 2
+            window, order = 15, 2
             for key in TrendPlotBuilder.STATISTICS:
                 df[key] = savgol_filter(df[key], window, order)
         self.source = ColumnDataSource(data=df)
 
     def make_plot(self):
-        self.plot = figure(x_axis_type="datetime", plot_width=650,
-                           tools='pan, reset, box_zoom',)
-        self.plot.xaxis.formatter = DatetimeTickFormatter(days=["%b %d"])
-        self.plot.title.text = "Temperature Trend for Calgary (YYC Airport)"
-        self.plot.title.align = "center"
-        self.plot.title.text_font_size = "16px"
-        self.plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',
-                       color=BuGn4[2], source=self.source, legend_label="Record")
-        self.plot.quad(top='avg_max_temp', bottom='avg_min_temp', left='left', right='right',
-                       color=BuGn4[1], source=self.source, legend_label="Average")
-        r = self.plot.quad(top='max_temp', bottom='min_temp', left='left', right='right',
-                           color=BuGn4[0], alpha=0.7, line_color="black", source=self.source, legend_label="Actual")
+        self.plot = figure(x_axis_type="datetime", tools='', sizing_mode='scale_width',
+                           max_width=650, toolbar_location=None)
+        r1 = self.plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',
+                            color=BuGn4[2], source=self.source)
+        r2 = self.plot.quad(top='avg_max_temp', bottom='avg_min_temp', left='left', right='right',
+                            color=BuGn4[1], source=self.source)
+        r3 = self.plot.quad(top='max_temp', bottom='min_temp', left='left', right='right',
+                            color=BuGn4[0], alpha=0.7, line_color="black", source=self.source)
 
         self.plot.legend.orientation = "horizontal"
+        legend = Legend(items=[("Record", [r1]), ("Average", [r2]), ("Actual", [r3]), ],
+                        location="center", orientation="horizontal", label_text_font_size="7pt",
+                        border_line_color="lightgrey", label_standoff=3, spacing=10, padding=5)
+        self.plot.add_layout(legend, 'below')
         # hover tool
         hover_tool = HoverTool(tooltips=[('Actuals', ''), ('date', '@date{%a %b %d}'),
                                          ('min', '@min_temp{0.0}\xb0C'),
                                          ('max', '@max_temp{0.0}\xb0C')],
                                formatters={'@date': 'datetime'},
-                               renderers=[r],
+                               renderers=[r3],
                                mode='vline')
         self.plot.add_tools(hover_tool)
         # attributes
         self.plot.xaxis.axis_label = "Date"
-        self.plot.yaxis.axis_label = "Temperature (\xb0C)"
-        self.plot.axis.axis_label_text_font_style = "bold"
+        self.plot.yaxis.axis_label = "Temperature Range Min-Max (\xb0C)"
+        self.plot.axis.axis_label_text_font_style = "normal"
         self.plot.x_range = DataRange1d(range_padding=0.0)
         self.plot.grid.grid_line_alpha = 1.0
 

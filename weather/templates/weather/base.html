@@ -28,16 +28,19 @@
     <div class="container-fluid d-flex w-100 h-100 p-3 mx-auto flex-column">
         <header>
             <nav class="navbar navbar-light fixed-top" style="background-color: #e3f2fd;">
-                <h3 class="nav-item navbar-inner">Calgary, AB - Temperature Trend - Most Recent 8 Weeks</h3>
+                <h4 class="nav-item navbar-inner text-center">Calgary, AB, Temperature Trend</h4>
             </nav>
         </header>
 
-        <main role="main" class="p-3">
+        <main role="main" class="mt-2">
             {{ div | safe }}
-            <div class="mt-5">
+            <div class="mt-4">
                 <p>
                   If using a mouse, hover over plot for display of actual temperature
                   values for select day.
+                </p>
+                <p>
+                  Location is YYC Calgary International Airport.
                 </p>
                 <p>
                   Average and record temperature ranges are based on up to {{max_years}}
