@@ -18,10 +18,16 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from weather.model_manager import initialize_db
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('weather.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+logger.info("About to call initialize_db()")
 initialize_db()
