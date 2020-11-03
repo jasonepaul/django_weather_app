@@ -6,7 +6,7 @@ WEATHER_URL = 'https://climate.weather.gc.ca/climate_data/bulk_data_e.html?forma
               '&stationID={station}&Year={year}&Month={month}&timeframe={time_int}' \
               '&submit=Download+Data'
 
-EXTERNAL_FILE_LOC = Path(r"C:/Users/Jason/Documents/_Projects/2020-10 weather web app")
+CSV_FILE_LOC = Path.cwd()
 
 
 class WeatherDataRetriever:
@@ -156,7 +156,7 @@ def get_wx_stats_from_csv():
     """
     Test helper: retrieves saved weather stats from file
     """
-    path = Path.joinpath(EXTERNAL_FILE_LOC, "weather_stats.csv")
+    path = Path.joinpath(CSV_FILE_LOC, "weather_stats.csv")
     weather_stats = pd.read_csv(path)
     weather_stats['last_date'] = pd.to_datetime(weather_stats.last_date)
     return weather_stats
@@ -166,7 +166,7 @@ def get_latest_wx_from_csv():
     """
     Test helper: retrieves saved latest weather data from file
     """
-    path = Path.joinpath(EXTERNAL_FILE_LOC, "latest_weather.csv")
+    path = Path.joinpath(CSV_FILE_LOC, "latest_weather.csv")
     latest = pd.read_csv(path)
     latest['date'] = pd.to_datetime(latest.date)
     return latest
