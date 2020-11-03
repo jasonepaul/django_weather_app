@@ -99,18 +99,20 @@ def initialize_db():
     """
     Initializes all database tables on first time access to the website.
     """
+    if WxStats.objects.exists() and CurrentWx.objects.exists() and Info.objects.exists():
+        print("DB Tables already populated!")
+        return
     set_stats(from_api=True)
     set_current_weather(from_api=True)
     set_info()
+    print("DB Tables initialized!")
 
 
 def get_plot_df():
     """
     Returns a dataframe suitable for the Bokeh plot
     """
-    if not WxStats.objects.exists():  # only true on first deployment at first server access
-        initialize_db()
-    elif date_db_last_updated() < date.today():  # typically only true on the first server access of any given day
+    if date_db_last_updated() < date.today():  # typically only true on the first server access of any given day
         update_weather_tables()  # todo replace this call with background task
     current_wx = table_to_df(CurrentWx)
     wx_stats = table_to_df(WxStats)
