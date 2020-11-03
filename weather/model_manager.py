@@ -3,6 +3,11 @@ import pandas as pd
 from weather.models import WxStats, CurrentWx, Info
 from weather.weather_data import WeatherDataRetriever, WeatherStatsCreator, \
     get_latest_weather, WEATHER_URL, get_wx_stats_from_csv, get_latest_wx_from_csv
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 def set_stats(from_api=True):
@@ -100,12 +105,12 @@ def initialize_db():
     Initializes all database tables on first time access to the website.
     """
     if WxStats.objects.exists() and CurrentWx.objects.exists() and Info.objects.exists():
-        print("DB Tables already populated!")
+        logger.info("DB Tables already populated!")
         return
     set_stats(from_api=True)
     set_current_weather(from_api=True)
     set_info()
-    print("DB Tables initialized!")
+    logger.info("DB Tables initialized!")
 
 
 def get_plot_df():
@@ -114,9 +119,11 @@ def get_plot_df():
     """
     if date_db_last_updated() < date.today():  # typically only true on the first server access of any given day
         update_weather_tables()  # todo replace this call with background task
+        logger.info("DB Tables updated!")
     current_wx = table_to_df(CurrentWx)
     wx_stats = table_to_df(WxStats)
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
     plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
     plot_df = plot_df.drop(columns=['month_day'])
+    logger.info("Plot is being returned to send to client!")
     return plot_df
