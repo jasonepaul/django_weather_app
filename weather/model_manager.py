@@ -107,6 +107,7 @@ def initialize_db():
     if WxStats.objects.exists() and CurrentWx.objects.exists() and Info.objects.exists():
         logger.info("DB Tables already populated!")
         return
+    logger.info("Inside initialize_db(), about to call set_stats()")
     set_stats(from_api=True)
     set_current_weather(from_api=True)
     set_info()
