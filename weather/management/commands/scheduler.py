@@ -28,7 +28,7 @@ class Command(BaseCommand):
         )
         logger.info("Added job timed_job.")
 
-        scheduler.add_job(set_stats, 'cron', year=2020, month=11, day=4, hour=24, timezone='UTC')
+        scheduler.add_job(set_stats, 'cron', year=2020, month=11, day=4, hour=23, timezone='UTC')
         scheduler.add_job(update_weather_tables, 'cron', hour=10, timezone='UTC')
         logger.info("Added job set_stats and update_weather_tables.")
 
