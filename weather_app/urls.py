@@ -28,6 +28,3 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('weather.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-logger.info("About to call initialize_db()")
-initialize_db()
