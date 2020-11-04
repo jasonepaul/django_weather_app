@@ -4,6 +4,10 @@ from weather.models import WxStats, CurrentWx, Info
 from weather.weather_data import WeatherDataRetriever, WeatherStatsCreator, \
     get_latest_weather, WEATHER_URL, get_wx_stats_from_csv, get_latest_wx_from_csv
 import logging
+import django
+
+
+django.setup()
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
