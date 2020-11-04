@@ -1,4 +1,4 @@
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.blocking import BlockingScheduler
 from weather.model_manager import set_stats, update_weather_tables
 from django.core.management.base import BaseCommand
 from apscheduler.triggers.cron import CronTrigger
@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # for background tasks
-        scheduler = BackgroundScheduler()
+        scheduler = BlockingScheduler()
 
         scheduler.add_job(
             timed_job,
@@ -31,5 +31,4 @@ class Command(BaseCommand):
         scheduler.add_job(set_stats, 'cron', year=2020, month=11, day=4, hour=23, timezone='UTC')
         scheduler.add_job(update_weather_tables, 'cron', hour=10, timezone='UTC')
         logger.info("Added job set_stats and update_weather_tables.")
-
         scheduler.start()
