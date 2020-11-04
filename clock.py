@@ -8,10 +8,4 @@ schedule = BlockingScheduler()
 schedule.add_job(set_stats, 'cron', year=2020, month=11, day=4, hour=19, timezone='UTC')
 schedule.add_job(update_weather_tables, 'cron', hour=10, timezone='UTC')
 
-
-@schedule.scheduled_job()
-def timed_job():
-    print('This job is run every one minutes.')
-
-
 schedule.start()
