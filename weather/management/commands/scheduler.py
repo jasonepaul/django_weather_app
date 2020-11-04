@@ -1,9 +1,7 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from weather.model_manager import set_stats, update_weather_tables
-import django
+from django.core.management.base import BaseCommand
 
-
-django.setup()
 
 # for background tasts
 schedule = BlockingScheduler()
@@ -18,4 +16,7 @@ def timed_job():
     print('This job is run every three minutes.')
 
 
-schedule.start()
+class Command(BaseCommand):
+
+    def handle(self):
+        schedule.start()
