@@ -109,13 +109,10 @@ def initialize_db():
     Initializes all database tables on first time access to the website.
     """
     if WxStats.objects.exists() and CurrentWx.objects.exists() and Info.objects.exists():
-        logger.info("DB Tables already populated!")
         return
-    logger.info("Inside initialize_db(), about to call set_stats()")
     set_stats(from_api=True)
     set_current_weather(from_api=True)
     set_info()
-    logger.info("DB Tables initialized!")
 
 
 def get_plot_df():
@@ -130,5 +127,4 @@ def get_plot_df():
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
     plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
     plot_df = plot_df.drop(columns=['month_day'])
-    logger.info("Plot is being returned to send to client!")
     return plot_df
