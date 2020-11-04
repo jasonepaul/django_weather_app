@@ -34,7 +34,7 @@ class TrendPlotBuilder:
         df = df.set_index(['date'])
         df.sort_index(inplace=True)
         if self.smoothed:
-            window, order = 15, 2
+            window, order = 21, 2
             for key in TrendPlotBuilder.STATISTICS:
                 df[key] = savgol_filter(df[key], window, order)
         self.source = ColumnDataSource(data=df)
@@ -48,8 +48,6 @@ class TrendPlotBuilder:
                             color=BuGn4[1], source=self.source)
         r3 = self.plot.quad(top='max_temp', bottom='min_temp', left='left', right='right',
                             color=BuGn4[0], alpha=0.7, line_color="black", source=self.source)
-
-        self.plot.legend.orientation = "horizontal"
         legend = Legend(items=[("Record", [r1]), ("Average", [r2]), ("Actual", [r3]), ],
                         location="center", orientation="horizontal", label_text_font_size="7pt",
                         border_line_color="lightgrey", label_standoff=3, spacing=10, padding=5)
