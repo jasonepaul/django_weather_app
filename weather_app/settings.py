@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'f-+l0i4sy5r(kngk_en2j)ca83zn-p
 # DEBUG = True
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-ALLOWED_HOSTS = ['stark-tundra-42903.herokuapp.com', '127.0.0.1']
+ALLOWED_HOSTS = ['yyc-weather-app.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
