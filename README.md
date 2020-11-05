@@ -13,7 +13,7 @@ Tools used:
 * Deployed on Heroku
 
 > Website:
-https://yyc-weather-app.herokuapp.com/
+https://temp-trend.herokuapp.com/
 
 Chrome image:
 
