@@ -13,7 +13,7 @@ Tools used:
 * Deployed on Heroku
 
 > Website:
-https://stark-tundra-42903.herokuapp.com/
+https://yyc-weather-app.herokuapp.com/
 
 Chrome image:
 
