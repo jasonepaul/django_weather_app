@@ -1,6 +1,5 @@
 import datetime
 import pandas as pd
-from scipy.signal import savgol_filter
 from bokeh.models import ColumnDataSource, DataRange1d, HoverTool, Legend
 from bokeh.palettes import BuGn4
 from bokeh.plotting import figure
@@ -8,7 +7,6 @@ from weather.model_manager import get_plot_df
 
 
 class TrendPlotBuilder:
-    STATISTICS = ['avg_min_temp', 'avg_max_temp']
 
     def __init__(self, smoothed=False):
         self.weather_df = None
@@ -24,7 +22,7 @@ class TrendPlotBuilder:
         self.make_plot()
 
     def create_df_from_db(self):
-        self.weather_df = get_plot_df()
+        self.weather_df = get_plot_df(self.smoothed)
 
     def process_dataset(self):
         df = self.weather_df
@@ -33,10 +31,6 @@ class TrendPlotBuilder:
         df['right'] = df.date + datetime.timedelta(days=0.5)
         df = df.set_index(['date'])
         df.sort_index(inplace=True)
-        if self.smoothed:
-            window, order = 21, 2
-            for key in TrendPlotBuilder.STATISTICS:
-                df[key] = savgol_filter(df[key], window, order)
         self.source = ColumnDataSource(data=df)
 
     def make_plot(self):

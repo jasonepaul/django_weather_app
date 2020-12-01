@@ -5,6 +5,7 @@ from weather.weather_data import WeatherDataRetriever, WeatherStatsCreator, \
     get_latest_weather, WEATHER_URL, get_wx_stats_from_csv, get_latest_wx_from_csv
 import logging
 import django
+from scipy.signal import savgol_filter
 
 
 django.setup()
@@ -115,15 +116,31 @@ def initialize_db():
     set_info()
 
 
-def get_plot_df():
+def smooth_averages(wx_stats):
+    """
+    Smooth the min and max averages in the stats DataFrame using savgol_filter
+    @param wx_stats: Weather stats DataFrame
+    @return: The weather stats DataFrame with smoothed min and max averages
+    """
+    cols = ['avg_min_temp', 'avg_max_temp']
+    window, order = 31, 2
+    for col in cols:
+        wx_stats[col] = savgol_filter(wx_stats[col], window, order, mode="wrap")
+    return wx_stats
+
+
+def get_plot_df(smoothed):
     """
     Returns a dataframe suitable for the Bokeh plot
+    @param smoothed: whether to smooth the min and max averages in the stats
     """
     if date_db_last_updated() < date.today():  # typically only true on the first server access of any given day
-        update_weather_tables()  # todo replace this call with background task
+        update_weather_tables()
         logger.info("DB Tables updated!")
     current_wx = table_to_df(CurrentWx)
     wx_stats = table_to_df(WxStats)
+    if smoothed:
+        wx_stats = smooth_averages(wx_stats)
     wx_stats = wx_stats.drop(columns=['last_date', 'stats_count'])
     plot_df = pd.merge(current_wx, wx_stats, how='inner', on=['month_day'])
     plot_df = plot_df.drop(columns=['month_day'])
