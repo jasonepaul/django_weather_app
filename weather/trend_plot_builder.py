@@ -30,7 +30,6 @@ class TrendPlotBuilder:
         df['left'] = df.date - datetime.timedelta(days=0.5)
         df['right'] = df.date + datetime.timedelta(days=0.5)
         df = df.set_index(['date'])
-        df.sort_index(inplace=True)
         self.source = ColumnDataSource(data=df)
 
     def make_plot(self):

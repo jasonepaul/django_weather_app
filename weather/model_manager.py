@@ -71,6 +71,7 @@ def table_to_df(table):
     """
     table_list = list(table.objects.all().values())
     df = pd.DataFrame(table_list)
+    df.sort_values(by=['month_day'], inplace=True)
     return df
 
 
